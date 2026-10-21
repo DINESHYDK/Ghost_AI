@@ -33,7 +33,8 @@
 
 - Every project has a single owner (Clerk user ID).
 - Projects can include additional collaborators.
-- Only authenticated users can access protected routes.
+- Only authenticated users can access protected routes. `proxy.ts` is default-deny: only the sign-in and sign-up paths (from the `NEXT_PUBLIC_CLERK_SIGN_*_URL` env vars) are public. Signed-out page requests redirect to sign-in; signed-out `/api` requests receive `401 {"error":"Unauthorized"}`.
+- The proxy is not the only gate: every page, route handler and server function verifies auth on the server itself.
 - Only the owner or a collaborator can mutate project resources.
 - Liveblocks room tokens are issued only after verifying project membership.
 

@@ -1,3 +1,4 @@
+import { UserButton } from "@clerk/nextjs";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { PROJECT_SIDEBAR_ID } from "@/components/editor/project-sidebar";
@@ -24,7 +25,9 @@ export function EditorNavbar({ isSidebarOpen, onToggleSidebar }: EditorNavbarPro
         </Button>
       </div>
       <div className="flex items-center justify-center gap-1" />
-      <div className="flex items-center justify-end gap-1" />
+      <div className="flex items-center justify-end gap-1">
+        <UserButton />
+      </div>
     </header>
   );
 }

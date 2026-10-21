@@ -1,9 +1,11 @@
 import { SignUp } from "@clerk/nextjs";
 
+import { AuthShell } from "@/components/auth/auth-shell";
+
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <AuthShell>
       <SignUp />
-    </div>
+    </AuthShell>
   );
 }

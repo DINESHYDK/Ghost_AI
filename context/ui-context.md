@@ -268,6 +268,7 @@ editing the components:
   `--bg-subtle`, `--border-default`, `--accent-primary` for the ring.
 - **Chart variables** (`--chart-*`) are not defined. Charts are out of scope; add tokens first if
   that changes.
+- **Clerk components** use the `shadcn` theme from `@clerk/ui/themes` (plus `@import "@clerk/ui/themes/shadcn.css"` in `globals.css`), so they read the shadcn variables above and follow our tokens in both themes. `appearance.cssLayerName` must be set (from `shadcn.cssLayerName`) so Clerk's styles stay in a CSS layer below Tailwind's utilities. `appearance.variables` sets only `fontFamily` (Inter), `fontFamilyMono` (JetBrains Mono) and `borderRadius: calc(var(--radius) / 2)`, because Clerk's largest radius is 2× its base. No colors in `appearance`.
 - Setup: Radix base, `radix-nova` style (`components.json`), Lucide icons. `lib/utils.ts`
   re-exports `cn` from shadcn's `cn` package. When `shadcn init` or a registry item rewrites
   `globals.css` or adds a font to `layout.tsx`, restore the token mapping and fonts afterwards.
