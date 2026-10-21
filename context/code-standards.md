@@ -24,7 +24,7 @@
 ## Styling
 
 - Use CSS custom property tokens defined in `globals.css` — no raw Tailwind color classes like `zinc-*` or hardcoded hex values.
-- Reference tokens through their Tailwind utility names: `bg-base`, `text-copy-primary`, `border-surface-border`, `text-brand`, `text-ai-accent`, etc. The full list is in `ui-context.md`.
+- Reference tokens through their Tailwind utility names: `bg-page`, `text-copy-primary`, `border-surface-border`, `text-brand`, `text-ai-accent`, etc. The full list is in `ui-context.md`.
 - Do not use `dark:` variants for colors; the tokens switch with the theme.
 - Maintain the border radius scale: `rounded-xs` (3px) for chips, `rounded-sm` (4px) for inputs and small controls, `rounded-md` (6px) for buttons, cards, panels and modals. `rounded-pill` is for badges only; `rounded-full` for circles. Never `rounded-lg` or larger.
 - Follow the anti-"AI slop" rules in `ui-context.md`.

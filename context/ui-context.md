@@ -15,6 +15,9 @@ Implementation:
 - Raw CSS variables live in `app/globals.css`: light values on `:root`, dark values on `.dark`.
   `<html>` carries the `dark` class by default. (`.dark` follows the shadcn/ui convention.)
 - `@theme inline` maps the raw variables to Tailwind utilities (utility column below).
+- Never name a color token after a Tailwind size key (`xs`, `sm`, `base`, `lg`, `xl`, `2xl`, ...).
+  `--color-base` once turned `text-base` (a font size used by shadcn components) into a color
+  utility; that is why the page background utility is `bg-page`.
 - Declare `@custom-variant dark (&:where(.dark, .dark *));` so Tailwind's `dark:` follows the class,
   not the OS setting.
 - Components never use `dark:` for colors. The tokens switch with the theme.
@@ -32,7 +35,7 @@ Theme toggle (in scope, low priority, after the core flow works):
 
 | Role                   | Variable           | Dark        | Light     | Tailwind utility               |
 | ---------------------- | ------------------ | ----------- | --------- | ------------------------------ |
-| Page background        | `--bg-base`        | `#0a0a0a`   | `#ececec` | `bg-base`                      |
+| Page background        | `--bg-base`        | `#0a0a0a`   | `#ececec` | `bg-page`                      |
 | Canvas / panels        | `--bg-surface`     | `#15171a`   | `#ffffff` | `bg-surface`                   |
 | Elevated surface       | `--bg-elevated`    | `#1e2124`   | `#f5f4f2` | `bg-elevated`                  |
 | Subtle / hover surface | `--bg-subtle`      | `#2a2d33`   | `#ebebe9` | `bg-subtle`                    |
