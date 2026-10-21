@@ -1,3 +1,212 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light theme */
+:root {
+  color-scheme: light;
+
+  --bg-base: #ececec;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f5f4f2;
+  --bg-subtle: #ebebe9;
+  --bg-ai: #ececec;
+  --bg-ai-bubble: #ffffff;
+  --border-default: #d9d9d9;
+  --border-strong: #aaaaaa;
+
+  --text-primary: #1e2124;
+  --text-secondary: #52555a;
+  --text-muted: #767676;
+  --text-faint: #aaaaaa;
+
+  --accent-primary: #4a6d00;
+  --accent-primary-dim: #4a6d0014;
+  --on-accent: #ffffff;
+  --btn-primary: #1e2124;
+  --btn-primary-text: #ffffff;
+  --accent-ai: #0e7fae;
+  --state-error: #ff4136;
+  --state-success: #15803d;
+  --state-warning: #b45309;
+
+  --elevation-sm: 0 1px 2px #1e212414;
+  --elevation-md: 0 2px 8px #1e212414;
+  --elevation-lg: 0 4px 12px #1e21241a;
+  --nav-bg: rgba(236, 236, 236, 0.85);
+  --edge: #1e2124;
+  --handle: #1e2124;
+}
+
+/* Dark theme (default: <html class="dark">) */
+.dark {
+  color-scheme: dark;
+
+  --bg-base: #0a0a0a;
+  --bg-surface: #15171a;
+  --bg-elevated: #1e2124;
+  --bg-subtle: #2a2d33;
+  --bg-ai: #2a2d33;
+  --bg-ai-bubble: #33373d;
+  --border-default: #2e2e2e;
+  --border-strong: #ffffff2e;
+
+  --text-primary: #ffffff;
+  --text-secondary: #ffffffb8;
+  --text-muted: #ffffff8c;
+  --text-faint: #ffffff40;
+
+  --accent-primary: #bfff38;
+  --accent-primary-dim: rgba(191, 255, 56, 0.12);
+  --on-accent: #101400;
+  --btn-primary: #ffffff;
+  --btn-primary-text: #1e2124;
+  --accent-ai: #8fd9fb;
+  --state-error: #ff7a7a;
+  --state-success: #34d399;
+  --state-warning: #fbbf24;
+
+  --elevation-sm: 0 1px 2px #0006;
+  --elevation-md: 0 2px 12px #00000080;
+  --elevation-lg: 0 4px 16px #000000b3;
+  --nav-bg: rgba(10, 10, 10, 0.85);
+  --edge: #f8fafc;
+  --handle: #ffffff;
+}
+
+/* shadcn/ui variables, aliased to our tokens (see ui-context.md). */
+:root,
+.dark {
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--btn-primary);
+  --primary-foreground: var(--btn-primary-text);
+  --secondary: var(--bg-subtle);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-elevated);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bg-subtle);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--state-error);
+  --border: var(--border-default);
+  --input: var(--border-strong);
+  --ring: var(--accent-primary);
+  --radius: 6px;
+
+  --sidebar: var(--bg-elevated);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--btn-primary);
+  --sidebar-primary-foreground: var(--btn-primary-text);
+  --sidebar-accent: var(--bg-subtle);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-default);
+  --sidebar-ring: var(--accent-primary);
+}
+
+@theme {
+  /* Boxy scale. lg and up are pinned to 6px so shadcn components stay boxy. */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 6px;
+  --radius-2xl: 6px;
+  --radius-3xl: 6px;
+  --radius-4xl: 6px;
+  --radius-pill: 60px;
+
+  --shadow-*: initial;
+
+  --tracking-tight: -0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+}
+
+@theme inline {
+  /* Ghost AI tokens */
+  --color-base: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-elevated: var(--bg-elevated);
+  --color-subtle: var(--bg-subtle);
+  --color-ai-surface: var(--bg-ai);
+  --color-ai-bubble: var(--bg-ai-bubble);
+  --color-surface-border: var(--border-default);
+  --color-surface-border-strong: var(--border-strong);
+
+  --color-copy-primary: var(--text-primary);
+  --color-copy-secondary: var(--text-secondary);
+  --color-copy-muted: var(--text-muted);
+  --color-copy-faint: var(--text-faint);
+
+  --color-brand: var(--accent-primary);
+  --color-accent-dim: var(--accent-primary-dim);
+  --color-on-accent: var(--on-accent);
+  --color-btn-primary: var(--btn-primary);
+  --color-btn-primary-text: var(--btn-primary-text);
+  --color-ai-accent: var(--accent-ai);
+  --color-error: var(--state-error);
+  --color-success: var(--state-success);
+  --color-warning: var(--state-warning);
+
+  --color-nav: var(--nav-bg);
+  --color-edge: var(--edge);
+  --color-handle: var(--handle);
+
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: var(--font-inter), system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* shadcn/ui utilities */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
