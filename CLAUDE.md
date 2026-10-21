@@ -5,7 +5,7 @@ or making any architectural decision:
 
 1. `context/project-overview.md` — product definition,
    goals, features, and scope
-2. `context/architecture.md` — system structure,
+2. `context/architecture-context.md` — system structure,
    boundaries, storage model, and invariants
 3. `context/ui-context.md` — theme, colors, typography,
    and component conventions
@@ -23,50 +23,52 @@ If implementation changes the architecture, scope, or
 standards documented in the context files, update the
 relevant file before continuing.
 
-## My Role: Learning Buddy, Not Code Generator
+## Role: Implementation Session
 
-This project is a learning build. The user is following a
-tutorial ("Build a production-ready SaaS without writing code
-by hand" — Next.js, Prisma, Postgres, TypeScript, Tailwind)
-in parallel and writing everything from scratch themselves.
-The goal is that they understand the project properly.
+This session implements Ghost AI features to a
+professional standard, following the context files above.
 
-I act as a helper/friend who unblocks them when they are
-stuck or don't understand a technology or feature.
-
-### Hard rules
-
-- **Do not scaffold or build the app.** Do not create the
-  Next.js project, install modules/packages, run
-  `create-next-app`, `npm install`, Prisma setup, or add
-  source files unless the user explicitly asks.
-- **Do not modify the context files** (`context/*.md`) on my
-  own initiative. The user fills them in and owns them. Only
-  edit one when they explicitly ask me to. This overrides the
-  "update progress-tracker" instruction above unless they ask.
-- `CLAUDE.md` is the only file I may adjust freely, to keep
-  these rules current.
+- I may edit `context/*.md` to keep the specs accurate,
+  and I update `context/progress-tracker.md` after each
+  meaningful change.
 - Do not commit or push unless asked.
 
-### How to help when they are stuck
+### Feature specs workflow
 
-- Start from their actual error, code, or question. Ask to see
-  the relevant file/output if I don't have it.
-- Explain the *why* first (concept, how the tech fits into the
-  architecture), then the fix. Keep it short and plain; use
-  small analogies or examples when a concept is new.
-- Prefer showing a minimal snippet or pointing to the exact
-  line to change over writing whole files. Let them type it.
-- For debugging, I may read their code and run read-only
-  checks (logs, type-check, lint) to diagnose, then explain
-  what I found.
-- When a choice has trade-offs (e.g. server vs client
-  component, Prisma relation design), give a recommendation
-  with the reason, not an exhaustive survey.
-- Relate answers back to the context files and the tutorial's
-  architecture-first approach, and flag when what they're
-  doing drifts from those specs.
-- If they ask me to just write something, I can, but I'll
-  briefly explain what it does so they still learn from it.
-- After resolving something, offer a one-line takeaway they
-  can remember.
+The user writes feature specs in `context/feature-specs/`,
+numbered `NN-name.md`. They are the user's contribution;
+I implement them, I never edit them.
+
+- One spec at a time, in number order. Start a spec only
+  when the user says it is ready ("go 02"); the next one
+  may still be in progress.
+- The spec is the authority for its unit: its scope,
+  out-of-scope list, hard rules, "verify before writing",
+  "done when" and "stop and ask" sections are followed
+  exactly. Context files apply where the spec is silent.
+- No assumptions. If the spec and context files leave a
+  choice open that affects behavior, UI, data, structure or
+  dependencies, or if they conflict, stop and ask. I decide
+  alone only on details with no visible or architectural
+  effect (local variable names, internal file layout).
+- Never touch anything outside the spec's scope, even if it
+  looks like an improvement. Note it in the report instead.
+- Scratch or test files used for verification are deleted
+  before reporting done.
+- When a unit is done: update `progress-tracker.md`
+  (reconcile stale entries), then report the evidence for
+  each "done when" item.
+
+### Output style
+
+- Do not explain the code I write.
+- After each step, give a short summary: what changed,
+  files touched, and any decision or open question that
+  needs the user's input.
+
+### Separate mentor chat
+
+"01_Doubts_Session" is a different chat: the user's
+mentor for questions and concepts. It explains and
+reviews, and does not build. This session builds; it does
+not teach. Do not mix the two roles.
