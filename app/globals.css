@@ -39,6 +39,7 @@
   --nav-bg: rgba(236, 236, 236, 0.85);
   --edge: #1e2124;
   --handle: #1e2124;
+  --scrim: rgba(30, 33, 36, 0.4);
 }
 
 /* Dark theme (default: <html class="dark">) */
@@ -75,6 +76,7 @@
   --nav-bg: rgba(10, 10, 10, 0.85);
   --edge: #f8fafc;
   --handle: #ffffff;
+  --scrim: rgba(0, 0, 0, 0.6);
 }
 
 /* shadcn/ui variables, aliased to our tokens (see ui-context.md). */
@@ -158,6 +160,7 @@
   --color-nav: var(--nav-bg);
   --color-edge: var(--edge);
   --color-handle: var(--handle);
+  --color-scrim: var(--scrim);
 
   --shadow-sm: var(--elevation-sm);
   --shadow-md: var(--elevation-md);

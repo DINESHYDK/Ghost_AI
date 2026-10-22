@@ -86,10 +86,13 @@ Button usage:
 | Sticky nav fill | `--nav-bg`       | `rgba(10,10,10,.85)`   | `rgba(236,236,236,.85)` | `bg-nav`         |
 | Canvas edge     | `--edge`         | `#f8fafc`              | `#1e2124`               | `stroke-edge`    |
 | Canvas handle   | `--handle`       | `#ffffff`              | `#1e2124`               | `bg-handle`      |
+| Mobile scrim    | `--scrim`        | `rgba(0, 0, 0, 0.6)`   | `rgba(30, 33, 36, 0.4)` | `bg-scrim`       |
 
 The raw shadow variables are named `--elevation-*` because `--shadow-*` is Tailwind's own theme
 namespace; reusing it would make the mapping self-referential. Tailwind's default shadow scale is
 reset, so `shadow-sm` / `shadow-md` / `shadow-lg` are the only shadows available.
+
+`--scrim` dims the page behind the open project sidebar on small screens (below `md`) only; the light value is the ink color at 40%.
 
 Shadows: the style is boxy and flat, and borders do most of the separation. Use shadows only on
 floating elements (popovers, the AI panel, modals), never on cards or inline panels. The light `sm`
@@ -269,6 +272,10 @@ editing the components:
 - **Chart variables** (`--chart-*`) are not defined. Charts are out of scope; add tokens first if
   that changes.
 - **Clerk components** use the `shadcn` theme from `@clerk/ui/themes` (plus `@import "@clerk/ui/themes/shadcn.css"` in `globals.css`), so they read the shadcn variables above and follow our tokens in both themes. `appearance.cssLayerName` must be set (from `shadcn.cssLayerName`) so Clerk's styles stay in a CSS layer below Tailwind's utilities. `appearance.variables` sets only `fontFamily` (Inter), `fontFamilyMono` (JetBrains Mono) and `borderRadius: calc(var(--radius) / 2)`, because Clerk's largest radius is 2× its base. No colors in `appearance`.
+- **ScrollArea and truncation:** Radix wraps ScrollArea content in a `display: table` div that grows
+  to fit its content, so `truncate` never applies and row actions are pushed out of view. Where rows
+  inside a ScrollArea must truncate, add `[&_[data-slot=scroll-area-viewport]>div]:block!` to the
+  ScrollArea's `className` (done in `project-sidebar.tsx`) instead of editing the generated file.
 - Setup: Radix base, `radix-nova` style (`components.json`), Lucide icons. `lib/utils.ts`
   re-exports `cn` from shadcn's `cn` package. When `shadcn init` or a registry item rewrites
   `globals.css` or adds a font to `layout.tsx`, restore the token mapping and fonts afterwards.
@@ -278,7 +285,9 @@ editing the components:
 - Editor workspace: full-viewport layout. Floating sidebar overlay on the left, center canvas,
   slide-over AI sidebar on the right.
 - Left sidebar: floating overlay, `bg-elevated`, 1px `border-surface-border`, `rounded-md`. Active
-  item: `bg-accent-dim text-brand`.
+  item: `bg-accent-dim text-brand`. At `md` and above it has no backdrop and is not modal (the
+  canvas stays usable). Below `md` only, a full-screen `bg-scrim` (`z-30`, `aria-hidden`, not
+  focusable) sits behind the open sidebar and above the page; tapping it closes the sidebar.
 - AI sidebar (chatbot): `bg-ai-surface` panel. Messages are `bg-ai-bubble` with `rounded-sm` and a
   1px border (AI messages use `border-surface-border-strong`). The header uses a single sparkle icon
   in `text-ai-accent`. Composer: `bg-ai-bubble`, strong border, lime send button.
