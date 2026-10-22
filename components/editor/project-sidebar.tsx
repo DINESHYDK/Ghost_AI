@@ -75,7 +75,7 @@ export function ProjectSidebar({ isOpen, onClose, projects, onCreate, onRename, 
           </Tabs>
 
           <div className="border-t border-surface-border p-3">
-            <Button className="w-full" onClick={onCreate}>
+            <Button variant="outline" className="w-full" onClick={onCreate}>
               <Plus data-icon="inline-start" />
               New Project
             </Button>
