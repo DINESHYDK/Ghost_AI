@@ -33,7 +33,7 @@
 
 - Validate and parse request input before any logic runs.
 - Enforce auth and project ownership checks before any mutation.
-- Return consistent, predictable response shapes.
+- Return consistent, predictable response shapes. Status codes, error bodies and the order of checks follow "API Status and Error Policy" in `architecture-context.md`, built with the helpers in `lib/api/http.ts`.
 - Keep route handlers thin — push complexity into shared modules or background tasks.
 
 ## Data and Storage

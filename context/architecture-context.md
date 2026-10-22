@@ -69,6 +69,42 @@
 - Starter templates use the same enum.
 - Why: nodes follow the theme with no data migration, the palette can be retuned without touching saved canvases, and collaborators on different themes see correct colors.
 
+## API Status and Error Policy
+
+One policy for every route under `app/api`. Handlers never hand-write error responses: they use the shared helpers in `lib/api/http.ts`.
+
+**Response shapes**
+
+- Success: a JSON object with a named key, never a bare array: `{ "project": {...} }`, `{ "projects": [...] }`, `{ "collaborator": {...} }`, `{ "collaborators": [...] }`, and `{ "id": "..." }` for deletes. No `204`, so clients can always parse JSON.
+- Error: `{ "error": "<short message>" }`. Messages are short and fixed (`Unauthorized`, `Forbidden`, `Project not found`, `Collaborator not found`, `Internal server error`, and the validation messages). They never include stack traces, Prisma or SQL text, tokens, or email addresses.
+
+**Status codes**
+
+| Code  | Meaning                                                              | Examples                                                       |
+| ----- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `200` | Read, update or delete succeeded                                     | list, rename, delete                                           |
+| `201` | A resource was created                                               | create project, invite collaborator                            |
+| `400` | The request itself is invalid                                        | not JSON, not an object, failed validation, inviting yourself  |
+| `401` | No signed-in session                                                 | same body from the proxy and from every handler                |
+| `403` | Signed in, the resource exists, but the caller may not do this       | non-owner rename/delete, collaborator inviting or removing     |
+| `404` | The resource does not exist                                          | unknown project ID, unknown collaborator row                   |
+| `409` | Valid request that conflicts with current state                     | already a collaborator, collaborator limit reached             |
+| `415` | A JSON endpoint received another content type                        | `POST` or `PATCH` without `application/json`                   |
+| `500` | Unexpected failure                                                   | generic body; details only in server logs, without secrets     |
+
+Next.js answers `405` itself for methods a route does not define.
+
+**Order of checks in a handler:** `401` (session) → `415` / `400` (content type, parse, validate; no database work yet) → `404` / `403` (look up the resource, then authorize) → `409` (state conflicts) → success. Ownership is also enforced in the write itself (owner ID in the `where`), not only checked beforehand.
+
+**Who gets which answer.** On project and collaborator API routes a missing resource is `404` and a resource the caller may not touch is `403`, including for a signed-in stranger. The trade-off: `403` confirms that an ID exists. That is accepted because project IDs are random cuids that cannot be guessed, and a caller who already has the ID (for example from a shared link) learns nothing new. When the shared access helper reports "no access" (it deliberately does not distinguish missing from forbidden), the route makes a second, ID-only existence query to choose between `404` and `403`.
+
+**Two deliberate exceptions, which do not distinguish missing from forbidden:**
+
+1. **Pages** (`/editor/[projectId]`): the same `AccessDenied` screen, so a page never reveals whether a project exists. It is a normal page response, not a `403`.
+2. **`POST /api/liveblocks-auth`:** `403` for both, because the Liveblocks client treats that status as a final refusal.
+
+**Client side:** the UI maps statuses to user-facing messages in one place (the project actions hook), using the fixed messages from spec 07. It never displays raw server text.
+
 ## Invariants
 
 1. Request handlers do not run long-lived AI work — that belongs in background tasks.
@@ -77,3 +113,4 @@
 4. Client components are used only where browser interactivity or real-time state requires them.
 5. The canvas schema must remain consistent between user-created content and imported templates.
 6. Node colors are stored as enum names, never hex values.
+7. API routes follow the status and error policy above, using the shared helpers in `lib/api/http.ts`.
