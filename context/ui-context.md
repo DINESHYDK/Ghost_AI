@@ -71,10 +71,12 @@ Theme toggle (in scope, low priority, after the core flow works):
 
 Button usage:
 
-- **Accent** (`bg-brand text-on-accent`): the single main call to action on a screen.
-- **Primary** (`bg-btn-primary text-btn-primary-text`): regular primary actions.
-- **Secondary**: transparent fill, `border-surface-border-strong`, hover `bg-subtle`.
-- **Ghost**: text only, `text-copy-secondary`, hover `text-copy-primary`.
+- **Accent** (`<Button variant="accent">`: `bg-brand text-on-accent`, hover `bg-brand/80`): the single
+  main call to action on a screen. Used once so far: the `New Project` button on the `/editor` home
+  (`components/editor/editor-home.tsx`).
+- **Primary** (`<Button>` default: `bg-btn-primary text-btn-primary-text`): regular primary actions.
+- **Secondary**: transparent fill, `border-surface-border-strong`, hover `bg-subtle` (`outline` variant).
+- **Ghost**: text only, `text-copy-secondary`, hover `text-copy-primary` (`ghost` variant).
 
 ### Effects
 
@@ -237,7 +239,10 @@ Hard rules for all UI work. The earlier preview looked like generic AI output; t
 
 shadcn/ui on top of Tailwind. The project has custom design tokens (this file) but no custom
 component library. Components live in `components/ui/`. Use the `shadcn` CLI to add new components
-rather than writing them from scratch, and do not edit them (see `ai-workflow-rules.md`).
+rather than writing them from scratch. Generated files may be edited only to align them with this
+file, minimally and without touching behavior or accessibility logic (see "Generated Foundation
+Components" in `ai-workflow-rules.md`); every such edit is listed under "Local edits to generated
+components" below.
 
 shadcn components read their own variables. Point those at our tokens in `globals.css` instead of
 editing the components:
@@ -265,17 +270,25 @@ editing the components:
 - **`--radius`:** shadcn's generated formulas multiply `--radius` (`sm` 0.6x, `md` 0.8x, `lg` 1x,
   `xl` 1.4x, up to `4xl` 2.6x), which does not give our scale. They are replaced in `@theme` with
   fixed values: `xs` 3px, `sm` 4px, `md` 6px, and `lg` through `4xl` all pinned to 6px, because
-  shadcn's own components use `rounded-lg` and up and we can't edit them. Our own components still
-  never use `rounded-lg` or larger.
+  shadcn's own components use `rounded-lg` and up; the pin keeps them boxy without per-file edits.
+  Our own components still never use `rounded-lg` or larger.
 - **Sidebar variables** (`--sidebar-*`) follow the same mapping: `--bg-elevated`, `--btn-primary`,
   `--bg-subtle`, `--border-default`, `--accent-primary` for the ring.
 - **Chart variables** (`--chart-*`) are not defined. Charts are out of scope; add tokens first if
   that changes.
-- **Clerk components** use the `shadcn` theme from `@clerk/ui/themes` (plus `@import "@clerk/ui/themes/shadcn.css"` in `globals.css`), so they read the shadcn variables above and follow our tokens in both themes. `appearance.cssLayerName` must be set (from `shadcn.cssLayerName`) so Clerk's styles stay in a CSS layer below Tailwind's utilities. `appearance.variables` sets only `fontFamily` (Inter), `fontFamilyMono` (JetBrains Mono) and `borderRadius: calc(var(--radius) / 2)`, because Clerk's largest radius is 2× its base. No colors in `appearance`.
+- **Clerk components** use the `shadcn` theme from `@clerk/ui/themes` (plus `@import "@clerk/ui/themes/shadcn.css"` in `globals.css`), so they read the shadcn variables above and follow our tokens in both themes. The appearance lives in `lib/clerk-appearance.ts`:
+  - `ClerkProvider` gets `ui={ui}` from the installed `@clerk/ui`, so Clerk's UI is bundled at the lockfile version instead of loaded from Clerk's CDN (the CDN serves a floating `@clerk/ui@1` that drifted ahead of our installed theme).
+  - `appearance.cssLayerName` (from `shadcn.cssLayerName`) keeps Clerk's styles in a CSS layer below Tailwind's utilities, so theme and element classes win.
+  - `appearance.variables` sets only `fontFamily` (Inter), `fontFamilyMono` (JetBrains Mono) and `borderRadius: calc(var(--radius) / 2)`, because Clerk's largest radius is 2× its base. No colors in `appearance`.
+  - `appearance.elements` uses token utility classes only, mirroring our `Button` and `Input`: primary button `rounded-md`, no shadow, `hover:bg-primary/80`, lime focus ring; social button `rounded-md`, 1px `border-input`, no shadow, `hover:bg-subtle`, text `text-foreground`; inputs `rounded-sm`, 1px `border-input`, lime focus ring, `aria-invalid` red border and ring; card border `border-border`; divider `bg-border`.
+  - The sign-in and sign-up cards also get `authCardAppearance` (no shadow), because they sit on the page; Clerk modals (profile) keep the theme's shadow as floating elements.
+  - Clerk's "Secured by Clerk" badge and "Development mode" label are never hidden or restyled.
 - **ScrollArea and truncation:** Radix wraps ScrollArea content in a `display: table` div that grows
   to fit its content, so `truncate` never applies and row actions are pushed out of view. Where rows
   inside a ScrollArea must truncate, add `[&_[data-slot=scroll-area-viewport]>div]:block!` to the
   ScrollArea's `className` (done in `project-sidebar.tsx`) instead of editing the generated file.
+- **Local edits to generated components** (check before any `shadcn add --overwrite`):
+  - `components/ui/button.tsx`: added the `accent` variant (`bg-brand text-on-accent hover:bg-brand/80`) for the single main call to action per screen. Nothing else changed.
 - Setup: Radix base, `radix-nova` style (`components.json`), Lucide icons. `lib/utils.ts`
   re-exports `cn` from shadcn's `cn` package. When `shadcn init` or a registry item rewrites
   `globals.css` or adds a font to `layout.tsx`, restore the token mapping and fonts afterwards.

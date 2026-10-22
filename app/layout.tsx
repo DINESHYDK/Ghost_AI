@@ -1,7 +1,9 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import { shadcn } from "@clerk/ui/themes";
+import { ui } from "@clerk/ui";
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,16 +32,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <ClerkProvider
-          appearance={{
-            theme: shadcn,
-            cssLayerName: shadcn.cssLayerName,
-            variables: {
-              fontFamily: "var(--font-inter)",
-              fontFamilyMono: "var(--font-jetbrains-mono)",
-              // Clerk derives its largest radius as 2x this base, so half of --radius caps it at 6px.
-              borderRadius: "calc(var(--radius) / 2)",
-            },
-          }}
+          ui={ui}
+          appearance={clerkAppearance}
           afterSignOutUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
         >
           {children}

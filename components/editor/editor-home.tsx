@@ -16,7 +16,7 @@ export function EditorHome({ onCreateProject }: EditorHomeProps) {
         <p className="text-copy-muted">
           Start a new architecture workspace, or choose a project from the sidebar.
         </p>
-        <Button onClick={onCreateProject} className="mt-2">
+        <Button variant="accent" onClick={onCreateProject} className="mt-2">
           <Plus data-icon="inline-start" />
           New Project
         </Button>
