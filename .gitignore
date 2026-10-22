@@ -45,3 +45,6 @@ next-env.d.ts
 
 # local design demo
 /design-preview/
+
+# prisma generated client
+/generated/prisma

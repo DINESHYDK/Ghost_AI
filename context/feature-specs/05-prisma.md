@@ -9,7 +9,8 @@ Add Prisma ORM (version 7) with the two project data models, a cached server-sid
 ## Current state (read this, it corrects the old spec)
 
 - **Prisma is NOT installed.** `prisma`, `@prisma/client`, `@prisma/adapter-pg` and `pg` are absent from `package.json` and `node_modules`. There is no `prisma/` folder and no `prisma.config.ts`. This unit installs them.
-- **There is no database yet.** `.env.local` holds only the Clerk variables. There is no `DATABASE_URL`.
+- **The database is a Neon project, and `.env.local` has a `DATABASE_URL`.** Its shape was checked without printing it: a Postgres URL on a `neon.tech` host, a direct (not `-pooler`) host, with username, password, database name and `sslmode=require`. What is **not** known is which Neon branch it belongs to, or whether the connection works. Opus must ask the user which branch it is before migrating (see "Database and environment").
+- A Neon API key was previously put in that variable by mistake and has since been removed and revoked. No Neon API key belongs in `.env.local`.
 - `dotenv` exists in `node_modules` only as a transitive dependency and `server-only` is only a transitive dependency of Clerk. Both are installed explicitly in this unit.
 - `.gitignore` already ignores `.env*`.
 
@@ -53,14 +54,32 @@ Read the Prisma ORM **7** docs for the installed version. Do not write from memo
 5. How the driver adapter is passed to `PrismaClient` in v7 (`new PrismaPg({ connectionString })` then `new PrismaClient({ adapter })`).
 6. The exact v7 usage for Prisma Accelerate with a `prisma+postgres://` URL. The Postgres docs page does not cover it, so read the Accelerate docs. Do not guess.
 7. Whether `env("DATABASE_URL")` in `prisma.config.ts` throws when the variable is missing (it can break `prisma generate` and builds). If so, use a form that lets `generate` run without a database.
+8. The Node version Prisma 7 requires against the installed Node (22.13.1 at the time of writing; Prisma 7 needs 20.19+, 22.12+ or 24+).
+9. Whether `prisma migrate dev` needs a shadow database on Neon, and whether that needs any new configuration or environment variable. If it does, stop and ask.
 
 ## Database and environment
 
-- The user provides the database. Do not create accounts, databases, or Docker containers, and do not choose a provider.
-- `DATABASE_URL` is stored in `.env.local` (gitignored). If it is missing, **stop and ask**. Do not invent a value.
-- Never print, log or commit `DATABASE_URL` or any credentials. When checking it, only test its prefix or presence.
-- Do not add any other new environment variable. If Prisma Migrate needs a separate direct connection URL for the user's provider (some pooled and Accelerate URLs do not support migrations), stop and ask instead of inventing a variable.
-- Before migrating, confirm with the user that `DATABASE_URL` points to a **development** database, never production.
+The provider is **Neon** (free tier). The user already owns the Neon project and its default branch is named `production`.
+
+**Neon dev branch (Opus does this step):**
+
+- All development and migrations run against a Neon branch named `dev`, never against `production`.
+- If no `dev` branch exists, create one from `production` using the Neon CLI through `npx neon@latest` (no global install). Discover the exact subcommands and flags with `--help`; do not write them from memory. Ask the user for the Neon project ID if you do not have it.
+- If the CLI needs authentication, ask the user to run `neon login` themselves in their terminal (they can type `! npx neon@latest login` in the session). Do not ask for, store or use a Neon API key.
+- Do not run `neon init` or `neon deploy`. They install agent skills and MCP config, create `.neon` and `neon.ts`, and pull extra environment variables. None of that is part of this unit.
+- Create only the one `dev` branch. Do not create or delete projects, other branches, roles or databases. The free plan has a limited number of branches per project, so do not create extras.
+- Ask the user which Neon branch the current `DATABASE_URL` belongs to. If it is `dev`, continue. If it is `production`, or the user is not sure, make sure the `dev` branch exists and ask the user to copy the `dev` branch's **direct (non-pooled)** connection string into `.env.local` as `DATABASE_URL`, replacing the old value. Do not fetch or write the connection string yourself.
+
+**`DATABASE_URL` rules:**
+
+- Stored in `.env.local` (gitignored). If it is missing, **stop and ask**. Do not invent a value.
+- It must be a Postgres connection string: it starts with `postgresql://` or `postgres://` (or `prisma+postgres://` for Accelerate). Check this **without printing the value or any slice of it**. For example, run a script that prints only `true` or `false`. If the check fails, stop and tell the user: do not print what was found. (The value can accidentally be an API key, which is a different credential.)
+- For Neon the host contains `neon.tech`. Use the **direct** string, whose host does **not** contain `-pooler`. The pooled string breaks Prisma Migrate. Check this the same way (booleans only).
+- Never print, log or commit `DATABASE_URL` or any credentials, and never echo a substring of it.
+- Do not add any other new environment variable (for example `DATABASE_URL_UNPOOLED`). If Migrate or the app needs one, stop and ask instead of inventing it. The free-tier first setup uses a single direct URL on purpose. Pooling is revisited at deployment.
+- Neon's free compute suspends after a few minutes of inactivity and cannot be disabled, so the first query after a pause can be slow or fail with `P1001`. If that happens, adding `connect_timeout` to the URL is the documented fix. Tell the user instead of editing their URL.
+- The `pg` driver may print a warning about how `sslmode=require` is interpreted. If it appears, report it to the user. Do not edit the URL.
+- Before migrating, confirm with the user that `DATABASE_URL` belongs to the `dev` branch, never `production`.
 
 ## Models
 
@@ -141,17 +160,19 @@ All of these are true. Report the evidence for each:
 
 1. `npm ls prisma @prisma/client @prisma/adapter-pg` shows one aligned 7.x version, and no Prisma 8 packages are installed.
 2. `npx prisma validate` passes. The schema has both models, the enum, the cascade relation, the unique constraint and the indexes exactly as above.
-3. `npx prisma migrate status` reports the database is up to date, and `prisma/migrations` contains the `init_projects` migration. Show the generated SQL's table and index names.
-4. `lib/prisma.ts` exports one cached `prisma`, begins with `import "server-only"`, handles both URL branches, and caches on `globalThis` outside production.
+3. The Neon `dev` branch exists, `DATABASE_URL` passed the boolean checks above (Postgres scheme, `neon.tech` host, no `-pooler`, no value printed anywhere), and `npx prisma migrate status` reports the database is up to date, and `prisma/migrations` contains the `init_projects` migration. Show the generated SQL's table and index names.
+4. `lib/prisma.ts` exports one cached `prisma`, begins with `import "server-only"`, handles both URL branches, and caches on `globalThis` outside production. The project's database is Neon, so the `prisma+postgres://` (Accelerate) branch cannot be exercised here. State plainly in the report that it is type-checked only and was not run.
 5. `npx tsc --noEmit` and `npm run lint` (errors in our own files) pass, and `npm run build` passes from a state where the generated client has just been produced by `postinstall`.
 6. `git status` shows no credentials, no `.env*` file, and no generated client files staged or tracked.
 7. If it can be done without installing anything else, run a throwaway script that creates a `Project` with a `ProjectCollaborator`, confirms the duplicate `(projectId, email)` is rejected, deletes the project, and confirms the collaborator was cascade-deleted. Remove every row and the script afterwards. If that is not possible, say so and list these checks for the user to run in Prisma Studio.
-8. `context/progress-tracker.md` is updated to the real state, including the email rule above and the open question about which database provider and URL type are used.
+8. `context/progress-tracker.md` is updated to the real state, including: the email rule above; the decision that the provider is Neon with a single direct `DATABASE_URL` on the `dev` branch and the `pg` adapter; and an open question to revisit at deployment whether the app should use Neon's pooled URL and `@prisma/adapter-neon` (which Neon's docs describe) and a second variable for migrations.
 
 ## Stop and ask if
 
-- `DATABASE_URL` is missing, or you cannot confirm it points to a development database.
-- The user's database needs a separate direct URL for migrations, or needs a new environment variable.
+- `DATABASE_URL` is missing, is not a Postgres connection string, contains `-pooler`, or you cannot confirm it belongs to the Neon `dev` branch.
+- The Neon CLI needs authentication, a project ID, or a Neon API key.
+- The user's database needs a separate direct URL for migrations, a shadow database setting, or any new environment variable.
+- The user says the current `DATABASE_URL` points at the `production` branch and has not yet replaced it with a `dev` URL.
 - Prisma 7 docs for the installed version contradict anything in this spec (generator, config, adapter, Accelerate).
 - The multi-file schema layout does not validate, or the migrations folder cannot sit where Prisma requires.
 - A migration would drop or alter existing data.
